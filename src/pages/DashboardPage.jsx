@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchDashboardStats, fetchGyms, fetchTickets, fetchEquipment } from '../utils/api';
+import { fetchDashboardStats, fetchGymDashboardStats, fetchTickets, fetchEquipmentByGym } from '../utils/api';
 import { useGym } from '../context/GymContext';
 import DashboardStats from '../components/Dashboard/DashboardStats';
 import './DashboardPage.css';
@@ -27,7 +27,6 @@ const DashboardPage = () => {
       solved: 0
     }
   });
-  const [recentGyms, setRecentGyms] = useState([]);
   const [recentTickets, setRecentTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -36,16 +35,42 @@ const DashboardPage = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Fetch dashboard summary stats
-        const dashboardStats = await fetchDashboardStats();
+        
+        // Fetch dashboard stats based on whether a gym is selected or not
+        let dashboardStats;
+        let ticketsData;
+        
+        if (selectedGym) {
+          // Fetch gym-specific stats 
+          dashboardStats = await fetchGymDashboardStats(selectedGym.id);
+          
+          // Make sure it has all required properties
+          dashboardStats = {
+            users: dashboardStats.users || { total: 0, members: 0, admins: 0 },
+            // For gym-specific stats, we don't need the gyms total
+            gyms: { total: 1 },
+            equipment: dashboardStats.equipment || { total: 0, working: 0, damaged: 0 },
+            tickets: dashboardStats.tickets || { total: 0, pending: 0, solved: 0 }
+          };
+          
+          // Fetch gym-specific tickets
+          ticketsData = await fetchTickets();
+          ticketsData = ticketsData.filter(ticket => ticket.gym === selectedGym.name);
+        } else {
+          // Fetch overall stats if no gym is selected
+          dashboardStats = await fetchDashboardStats();
+          // Ensure we have the complete structure
+          dashboardStats = {
+            users: dashboardStats.users || { total: 0, members: 0, admins: 0 },
+            gyms: dashboardStats.gyms || { total: 0 },
+            equipment: dashboardStats.equipment || { total: 0, working: 0, damaged: 0 },
+            tickets: dashboardStats.tickets || { total: 0, pending: 0, solved: 0 }
+          };
+          ticketsData = await fetchTickets();
+        }
+        
         setStats(dashboardStats);
-
-        // Fetch recent tickets - filter by selected gym if applicable
-        const ticketsData = await fetchTickets();
-        const filteredTickets = selectedGym 
-          ? ticketsData.filter(ticket => ticket.gym === selectedGym.name)
-          : ticketsData;
-        setRecentTickets(filteredTickets.slice(0, 5));
+        setRecentTickets(ticketsData.slice(0, 5));
       } catch (err) {
         setError('Failed to load dashboard data');
         console.error(err);
@@ -162,10 +187,7 @@ const DashboardPage = () => {
             <span className="action-icon">🏋️</span>
             <span className="action-text">Add Equipment</span>
           </Link>
-          <Link to="/community/post/new" className="action-button">
-            <span className="action-icon">📢</span>
-            <span className="action-text">Create Announcement</span>
-          </Link>
+          {/* Create Announcement button removed */}
         </div>
       </div>
     </div>

@@ -134,6 +134,15 @@
   color: #3498db;
 }
 
+.post-action-btn.delete-btn {
+  color: #e74c3c;
+}
+
+.post-action-btn.delete-btn:hover {
+  color: #c0392b;
+  background-color: #ffeeee;
+}
+
 .community-loading,
 .community-error {
   display: flex;

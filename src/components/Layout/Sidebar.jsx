@@ -64,14 +64,7 @@ const Sidebar = ({ isCollapsed, onToggle, onLinkClick }) => {
           <span className="nav-icon">💬</span>
           <span className="nav-text">Community</span>
         </NavLink>
-        <NavLink 
-          to="/settings" 
-          className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
-          onClick={onLinkClick}
-        >
-          <span className="nav-icon">⚙️</span>
-          <span className="nav-text">Settings</span>
-        </NavLink>
+        {/* Settings link removed */}
       </nav>
       
       <div className="sidebar-footer">
@@ -81,7 +74,7 @@ const Sidebar = ({ isCollapsed, onToggle, onLinkClick }) => {
           </div>
           <div className="user-details">
             <span className="user-name">{user?.name || 'User'}</span>
-            <span className="user-role">{user?.role || 'Admin'}</span>
+            <span className="user-role">Admin</span> {/* Always show Admin */}
           </div>
         </div>
         <button className="logout-btn" onClick={logout}>

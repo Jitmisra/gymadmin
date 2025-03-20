@@ -54,6 +54,7 @@ const App = () => {
                   <Route path="/equipment/new" element={<AddEquipmentPage />} />
                   <Route path="/equipment/:id/edit" element={<EditEquipmentPage />} />
                   <Route path="/community" element={<CommunityPage />} />
+                  {/* Settings route removed */}
                 </Route>
               </Route>
               

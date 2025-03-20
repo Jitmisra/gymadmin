@@ -34,7 +34,7 @@ export const login = async (email, password) => {
             id: 1,
             name: email === 'agnik@gmail.com' ? 'Agnik' : 'Admin User',
             email: email,
-            role: 'admin'
+            role: 'Admin' // Changed from admin to Admin for consistency
           }
         }
       };
@@ -447,7 +447,7 @@ export const fetchAdmins = async () => {
         id: 1,
         name: 'Admin User',
         email: 'admin@gym.com',
-        role: 'SuperAdmin',
+        role: 'Admin', // Changed from SuperAdmin to Admin
         lastLogin: '2023-07-15'
       },
       {
@@ -486,6 +486,7 @@ export const createAdmin = async (adminData) => {
     const newAdmin = {
       id: Math.floor(Math.random() * 1000) + 10,
       ...adminData,
+      role: 'Admin', // Ensure all created admins have the Admin role
       lastLogin: null
     };
     
@@ -556,6 +557,65 @@ export const fetchGymDashboardStats = async (gymId) => {
         solved: Math.floor((memberCount / 30) * 0.8)
       }
     };
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Community management
+export const fetchCommunityPosts = async () => {
+  try {
+    // In a real app, this would be an API call
+    // const response = await api.get('/community/posts');
+    
+    // Mock data for demonstration
+    return [
+      {
+        id: 1,
+        author: 'Sarah Johnson',
+        role: 'Gym Manager',
+        gym: 'Fitness Plus',
+        title: 'New workout classes starting next week',
+        content: 'We are excited to announce new workout classes starting next week including HIIT, Yoga, and Spin. Check the schedule for more details!',
+        likes: 24,
+        comments: 8,
+        date: '2023-07-15'
+      },
+      {
+        id: 2,
+        author: 'Mike Wilson',
+        role: 'Personal Trainer',
+        gym: 'Iron Works',
+        title: 'Nutrition tips for better workout results',
+        content: 'Want to maximize your workout results? Here are some nutrition tips that can help you achieve your fitness goals faster...',
+        likes: 42,
+        comments: 15,
+        date: '2023-07-10'
+      },
+      {
+        id: 3,
+        author: 'Admin',
+        role: 'System Administrator',
+        gym: 'All Gyms',
+        title: 'System maintenance this weekend',
+        content: 'We will be performing system maintenance this weekend. The admin panel will be unavailable from Saturday 10 PM to Sunday 2 AM.',
+        likes: 5,
+        comments: 2,
+        date: '2023-07-08'
+      }
+    ];
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteCommunityPost = async (postId) => {
+  try {
+    // In a real app, this would be an API call to delete a post
+    // await api.delete(`/community/posts/${postId}`);
+    
+    console.log(`Deleting community post with ID: ${postId}`);
+    return { success: true };
   } catch (error) {
     throw error;
   }

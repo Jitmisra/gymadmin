@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import CommunityControls from '../components/Community/CommunityControls';
+import { fetchCommunityPosts, deleteCommunityPost } from '../utils/api';
 import './CommunityPage.css';
 
 const CommunityPage = () => {
@@ -8,50 +9,12 @@ const CommunityPage = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchCommunityPosts = async () => {
+    const fetchPosts = async () => {
       try {
         setLoading(true);
         // In a real app, this would be an API call
-        // const response = await api.get('/community/posts');
-        
-        // Mock data for demonstration
-        const mockPosts = [
-          {
-            id: 1,
-            author: 'Sarah Johnson',
-            role: 'Gym Manager',
-            gym: 'Fitness Plus',
-            title: 'New workout classes starting next week',
-            content: 'We are excited to announce new workout classes starting next week including HIIT, Yoga, and Spin. Check the schedule for more details!',
-            likes: 24,
-            comments: 8,
-            date: '2023-07-15'
-          },
-          {
-            id: 2,
-            author: 'Mike Wilson',
-            role: 'Personal Trainer',
-            gym: 'Iron Works',
-            title: 'Nutrition tips for better workout results',
-            content: 'Want to maximize your workout results? Here are some nutrition tips that can help you achieve your fitness goals faster...',
-            likes: 42,
-            comments: 15,
-            date: '2023-07-10'
-          },
-          {
-            id: 3,
-            author: 'Admin',
-            role: 'System Administrator',
-            gym: 'All Gyms',
-            title: 'System maintenance this weekend',
-            content: 'We will be performing system maintenance this weekend. The admin panel will be unavailable from Saturday 10 PM to Sunday 2 AM.',
-            likes: 5,
-            comments: 2,
-            date: '2023-07-08'
-          }
-        ];
-        
-        setPosts(mockPosts);
+        const postsData = await fetchCommunityPosts();
+        setPosts(postsData);
       } catch (err) {
         setError('Failed to load community posts');
         console.error(err);
@@ -60,8 +23,18 @@ const CommunityPage = () => {
       }
     };
 
-    fetchCommunityPosts();
+    fetchPosts();
   }, []);
+
+  const handleDeletePost = async (postId) => {
+    try {
+      await deleteCommunityPost(postId);
+      setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+    } catch (err) {
+      console.error('Failed to delete post:', err);
+      // Optionally show an error message
+    }
+  };
 
   if (loading) {
     return <div className="community-loading">Loading community feed...</div>;
@@ -75,7 +48,7 @@ const CommunityPage = () => {
     <div className="community-container">
       <div className="community-header">
         <h1>Community Feed</h1>
-        <button className="create-post-btn">Create New Post</button>
+        {/* Create post button removed */}
       </div>
       
       <CommunityControls />
@@ -104,6 +77,12 @@ const CommunityPage = () => {
                 <button className="post-action-btn">Like</button>
                 <button className="post-action-btn">Comment</button>
                 <button className="post-action-btn">Share</button>
+                <button 
+                  className="post-action-btn delete-btn"
+                  onClick={() => handleDeletePost(post.id)}
+                >
+                  Delete
+                </button>
               </div>
             </div>
           </div>
