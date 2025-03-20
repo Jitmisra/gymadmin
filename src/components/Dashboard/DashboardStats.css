@@ -1,0 +1,88 @@
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card h3 {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.stat-value {
+  font-size: 36px;
+  font-weight: bold;
+  margin: 10px 0;
+  color: #3498db;
+}
+
+.stat-breakdown {
+  margin: 10px 0;
+  padding: 5px 0;
+  border-top: 1px dashed #eee;
+  border-bottom: 1px dashed #eee;
+}
+
+.stat-subitem {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 10px;
+  font-size: 14px;
+}
+
+.stat-label {
+  color: #555;
+  font-weight: 500;
+}
+
+.stat-subvalue {
+  font-weight: 600;
+}
+
+.status-active, .status-solved {
+  color: #2ecc71;
+}
+
+.status-inactive, .status-pending {
+  color: #e74c3c;
+}
+
+.stat-link {
+  display: inline-block;
+  color: #3498db;
+  font-size: 14px;
+  margin-top: 10px;
+  text-decoration: none;
+}
+
+.stat-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .dashboard-stats {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: 576px) {
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+}

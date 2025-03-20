@@ -1,0 +1,194 @@
+.equipment-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.equipment-filters {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.search-bar input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 250px;
+  font-size: 14px;
+}
+
+.filter-options {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-options select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.equipment-list {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.equipment-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.equipment-list th, 
+.equipment-list td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.equipment-list th {
+  background-color: #f5f7fa;
+  font-weight: 600;
+  color: #333;
+}
+
+.equipment-list tr:hover {
+  background-color: #f9f9f9;
+}
+
+.equipment-photo-col {
+  width: 80px;
+}
+
+.equipment-photo {
+  width: 60px;
+  height: 60px;
+  overflow: hidden;
+  border-radius: 4px;
+  background-color: #f1f1f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.equipment-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.no-photo {
+  font-size: 10px;
+  color: #999;
+  text-align: center;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.status-badge.status-operational {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-badge.status-needs-maintenance {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+}
+
+.edit-btn {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.no-results {
+  text-align: center;
+  padding: 20px;
+  color: #6c757d;
+}
+
+.equipment-loading, 
+.equipment-error {
+  padding: 30px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.equipment-error {
+  color: #e74c3c;
+}
+
+.view-all-container {
+  padding: 15px;
+  text-align: center;
+  border-top: 1px solid #eee;
+}
+
+.view-all-link {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.view-all-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .equipment-filters {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .search-bar input {
+    width: 100%;
+  }
+  
+  .filter-options {
+    width: 100%;
+  }
+  
+  .filter-options select {
+    flex-grow: 1;
+  }
+  
+  .equipment-photo-col {
+    width: 60px;
+  }
+  
+  .equipment-photo {
+    width: 50px;
+    height: 50px;
+  }
+}

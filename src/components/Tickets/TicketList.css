@@ -1,0 +1,140 @@
+.ticket-list {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.ticket-item {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  align-items: center;
+}
+
+.ticket-item:last-child {
+  border-bottom: none;
+}
+
+.ticket-item:hover {
+  background-color: #f9f9f9;
+}
+
+.ticket-title {
+  font-weight: 500;
+  color: #333;
+}
+
+.ticket-gym {
+  color: #555;
+}
+
+.ticket-date {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.status-badge, .priority-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.status-badge.status-open {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-badge.status-in-progress {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.status-closed {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.priority-badge.priority-high {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.priority-badge.priority-medium {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.priority-badge.priority-low {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.ticket-action-btn {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.view-btn {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.ticket-list-loading, .ticket-list-error, .no-tickets {
+  padding: 20px;
+  text-align: center;
+}
+
+.ticket-list-error {
+  color: #e74c3c;
+}
+
+.no-tickets {
+  color: #666;
+  font-style: italic;
+}
+
+.view-all-container {
+  padding: 15px;
+  text-align: center;
+  border-top: 1px solid #eee;
+}
+
+.view-all-link {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.view-all-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .ticket-item {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .ticket-title {
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+  
+  .ticket-gym, .ticket-date, .ticket-status, .ticket-priority {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  
+  .ticket-actions {
+    margin-top: 10px;
+  }
+}

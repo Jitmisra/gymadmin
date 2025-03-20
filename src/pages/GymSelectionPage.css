@@ -1,0 +1,187 @@
+.gym-selection-page {
+  min-height: 100vh;
+  background-color: var(--background-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.gym-selection-container {
+  max-width: 1000px;
+  width: 100%;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+}
+
+.gym-selection-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.gym-selection-header h1 {
+  font-size: 24px;
+  color: var(--text-color);
+  margin-bottom: 8px;
+}
+
+.gym-selection-header p {
+  color: var(--gray-dark);
+  font-size: 16px;
+}
+
+.gym-selection-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.search-container {
+  flex: 1;
+  min-width: 250px;
+}
+
+.gym-search-input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid var(--gray);
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.gym-search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.create-gym-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.create-gym-button:hover {
+  background-color: var(--primary-dark);
+}
+
+.icon {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.gyms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.gym-card {
+  border: 1px solid var(--gray-light);
+  border-radius: 6px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.gym-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.gym-card-content {
+  padding: 20px;
+  flex: 1;
+}
+
+.gym-card h3 {
+  font-size: 18px;
+  margin: 0 0 5px 0;
+  color: var(--text-color);
+}
+
+.gym-location {
+  color: var(--gray-dark);
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.gym-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.gym-status {
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.status-active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.gym-members {
+  color: var(--gray-dark);
+}
+
+.gym-card-action {
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-top: 1px solid var(--gray-light);
+  text-align: center;
+}
+
+.no-gyms-found {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 30px;
+}
+
+.create-gym-link {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.gym-selection-loading,
+.gym-selection-error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  width: 100%;
+  font-size: 18px;
+}
+
+.gym-selection-error {
+  color: var(--error-color);
+}
+
+@media (max-width: 768px) {
+  .gym-selection-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
