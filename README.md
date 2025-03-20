@@ -77,3 +77,4 @@ Currently, the application uses mock data for demonstration purposes. In a produ
 ## License
 
 MIT# gymadmin
+# gymadmin
