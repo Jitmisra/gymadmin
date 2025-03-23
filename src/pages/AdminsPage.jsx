@@ -59,6 +59,26 @@ const AdminsPage = () => {
     }
   };
 
+  const handleDeleteAdmin = async (adminId, adminName) => {
+    if (window.confirm(`Are you sure you want to delete admin: ${adminName}?`)) {
+      try {
+        setLoading(true);
+        await deleteAdmin(adminId);
+        
+        // Remove the deleted admin from the state
+        setAdmins(prevAdmins => prevAdmins.filter(admin => admin.id !== adminId));
+        
+        // Show success message
+        alert(`Administrator ${adminName} has been deleted successfully.`);
+      } catch (error) {
+        console.error('Error deleting administrator:', error);
+        setError('Failed to delete administrator. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
   if (loading) {
     return <div className="admins-loading">Loading administrators data...</div>;
   }
@@ -116,12 +136,7 @@ const AdminsPage = () => {
                 </Button>
                 <button
                   className="action-btn delete-btn"
-                  onClick={() => {
-                    if (window.confirm(`Are you sure you want to delete admin: ${admin.name}?`)) {
-                      console.log(`Delete admin with ID: ${admin.id}`);
-                      // API call would go here
-                    }
-                  }}
+                  onClick={() => handleDeleteAdmin(admin.id, admin.name)}
                 >
                   Delete
                 </button>

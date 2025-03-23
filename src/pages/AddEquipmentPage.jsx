@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createEquipment } from '../utils/api';
 import { useGym } from '../context/GymContext';
 import Button from '../components/UI/Button';
 import './AddEquipmentPage.css';
@@ -9,12 +10,13 @@ const AddEquipmentPage = () => {
   const { selectedGym } = useGym();
   const [formData, setFormData] = useState({
     name: '',
-    status: 'operational',
+    description: '',
+    status: 'active'
   });
   const [photo, setPhoto] = useState(null);
   const [photoPreview, setPhotoPreview] = useState('');
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -36,98 +38,109 @@ const AddEquipmentPage = () => {
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.name.trim()) newErrors.name = 'Equipment name is required';
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!validateForm()) return;
+    if (!formData.name) {
+      setError('Equipment name is required');
+      return;
+    }
     
-    setIsSubmitting(true);
+    if (!selectedGym || !selectedGym.id) {
+      setError('No gym selected. Please select a gym before adding equipment.');
+      return;
+    }
+    
+    setLoading(true);
+    setError('');
     
     try {
-      // In a real app, you would upload the photo and create the equipment
-      console.log('Creating new equipment:', {
-        name: formData.name,
-        status: formData.status,
-        gymId: selectedGym.id,
-        hasPhoto: !!photo
-      });
+      // Prepare the equipment data with the gym ID
+      const equipmentData = {
+        ...formData,
+        gymId: selectedGym.gymId || selectedGym.id, // Use gymId if available, otherwise fallback to id
+        gym: selectedGym.name // Store the gym name for display purposes
+      };
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('Creating equipment for gym:', selectedGym);
       
-      // Redirect to equipment page on success
+      const result = await createEquipment(equipmentData, photo);
+      console.log('Equipment created:', result);
+      
+      // Navigate back to equipment list
       navigate('/equipment');
-    } catch (error) {
-      console.error('Error creating equipment:', error);
-      setErrors({ submit: 'Failed to create equipment. Please try again.' });
+    } catch (err) {
+      console.error('Failed to create equipment:', err);
+      setError(err.message || 'Failed to create equipment. Please try again.');
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
   return (
     <div className="add-equipment-container">
       <div className="add-equipment-header">
-        <h1>Add New Equipment to {selectedGym.name}</h1>
+        <h1>Add New Equipment</h1>
+        <p>Add new equipment to {selectedGym?.name || 'your gym'}</p>
       </div>
       
-      <form className="equipment-form" onSubmit={handleSubmit}>
-        {errors.submit && <div className="form-error">{errors.submit}</div>}
+      {error && <div className="error-message">{error}</div>}
+      
+      <form onSubmit={handleSubmit} className="equipment-form">
+        <div className="form-group">
+          <label htmlFor="photo">Equipment Photo</label>
+          <div 
+            className="photo-upload" 
+            onClick={() => document.getElementById('equipment-photo').click()}
+            style={photoPreview ? { backgroundImage: `url(${photoPreview})` } : {}}
+          >
+            {!photoPreview && <span>Click to Upload Photo</span>}
+          </div>
+          <input 
+            type="file" 
+            id="equipment-photo" 
+            accept="image/*" 
+            onChange={handlePhotoChange} 
+            style={{ display: 'none' }} 
+          />
+          <p className="form-hint">Optional: Upload an image of the equipment</p>
+        </div>
         
-        <div className="form-section">
-          <h2>Equipment Information</h2>
-          
-          <div className="photo-upload-container">
-            <div 
-              className="photo-upload" 
-              onClick={() => document.getElementById('equipment-photo').click()}
-              style={photoPreview ? { backgroundImage: `url(${photoPreview})` } : {}}
-            >
-              {!photoPreview && <span>Click to Upload Equipment Photo</span>}
-            </div>
-            <input 
-              type="file" 
-              id="equipment-photo" 
-              accept="image/*" 
-              onChange={handlePhotoChange} 
-              style={{ display: 'none' }} 
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="name">Equipment Name</label>
-            <input 
-              type="text" 
-              id="name" 
-              name="name" 
-              value={formData.name} 
-              onChange={handleInputChange} 
-              className={errors.name ? 'error' : ''}
-            />
-            {errors.name && <div className="input-error">{errors.name}</div>}
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="status">Status</label>
-            <select
-              id="status"
-              name="status"
-              value={formData.status}
-              onChange={handleInputChange}
-            >
-              <option value="operational">Operational</option>
-              <option value="maintenance">Needs Maintenance</option>
-            </select>
-          </div>
+        <div className="form-group">
+          <label htmlFor="name">Equipment Name *</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="description">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleInputChange}
+            rows="4"
+          ></textarea>
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="status">Status</label>
+          <select
+            id="status"
+            name="status"
+            value={formData.status}
+            onChange={handleInputChange}
+          >
+            <option value="active">Active</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="out-of-order">Out of Order</option>
+          </select>
         </div>
         
         <div className="form-actions">
@@ -135,15 +148,16 @@ const AddEquipmentPage = () => {
             type="button" 
             variant="secondary" 
             onClick={() => navigate('/equipment')}
+            disabled={loading}
           >
             Cancel
           </Button>
           <Button 
             type="submit" 
             variant="primary" 
-            disabled={isSubmitting}
+            disabled={loading}
           >
-            {isSubmitting ? 'Saving...' : 'Save Equipment'}
+            {loading ? 'Adding...' : 'Add Equipment'}
           </Button>
         </div>
       </form>

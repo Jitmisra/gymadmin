@@ -36,41 +36,64 @@ const DashboardPage = () => {
       try {
         setLoading(true);
         
-        // Fetch dashboard stats based on whether a gym is selected or not
-        let dashboardStats;
-        let ticketsData;
+        // Initialize our stats object
+        let dashboardStats = {
+          users: { total: 0, members: 0, admins: 0 },
+          gyms: { total: 0 },
+          equipment: { total: 0, working: 0, damaged: 0 },
+          tickets: { total: 0, pending: 0, solved: 0 }
+        };
+        
+        let ticketsData = [];
         
         if (selectedGym) {
-          // Fetch gym-specific stats 
-          dashboardStats = await fetchGymDashboardStats(selectedGym.id);
+          // 1. Fetch equipment for the selected gym
+          const gymIdToUse = selectedGym.gymId || selectedGym.id;
+          console.log('Fetching equipment for gym ID:', gymIdToUse);
+          const equipmentData = await fetchEquipmentByGym(gymIdToUse);
           
-          // Make sure it has all required properties
-          dashboardStats = {
-            users: dashboardStats.users || { total: 0, members: 0, admins: 0 },
-            // For gym-specific stats, we don't need the gyms total
-            gyms: { total: 1 },
-            equipment: dashboardStats.equipment || { total: 0, working: 0, damaged: 0 },
-            tickets: dashboardStats.tickets || { total: 0, pending: 0, solved: 0 }
+          // 2. Calculate equipment stats
+          const workingEquipment = equipmentData.filter(item => item.status === 'active').length;
+          const damagedEquipment = equipmentData.filter(item => 
+            item.status === 'maintenance' || item.status === 'out-of-order'
+          ).length;
+          
+          dashboardStats.equipment = {
+            total: equipmentData.length,
+            working: workingEquipment,
+            damaged: damagedEquipment
           };
           
-          // Fetch gym-specific tickets
+          // 3. Fetch tickets
           ticketsData = await fetchTickets();
-          ticketsData = ticketsData.filter(ticket => ticket.gym === selectedGym.name);
-        } else {
-          // Fetch overall stats if no gym is selected
-          dashboardStats = await fetchDashboardStats();
-          // Ensure we have the complete structure
-          dashboardStats = {
-            users: dashboardStats.users || { total: 0, members: 0, admins: 0 },
-            gyms: dashboardStats.gyms || { total: 0 },
-            equipment: dashboardStats.equipment || { total: 0, working: 0, damaged: 0 },
-            tickets: dashboardStats.tickets || { total: 0, pending: 0, solved: 0 }
+          
+          // 4. Calculate ticket stats
+          const pendingTickets = ticketsData.filter(ticket => 
+            ticket.status === 'open' || ticket.status === 'in progress'
+          ).length;
+          const solvedTickets = ticketsData.filter(ticket => 
+            ticket.status === 'closed'
+          ).length;
+          
+          dashboardStats.tickets = {
+            total: ticketsData.length,
+            pending: pendingTickets,
+            solved: solvedTickets
           };
+          
+          // 5. For other stats, we can use the existing API
+          const otherStats = await fetchGymDashboardStats(selectedGym.id);
+          dashboardStats.users = otherStats.users || dashboardStats.users;
+          
+        } else {
+          // If no gym is selected, fetch overall stats
+          dashboardStats = await fetchDashboardStats();
           ticketsData = await fetchTickets();
         }
         
         setStats(dashboardStats);
-        setRecentTickets(ticketsData.slice(0, 5));
+        setRecentTickets(ticketsData.slice(0, 5)); // Get the 5 most recent tickets
+        
       } catch (err) {
         setError('Failed to load dashboard data');
         console.error(err);
@@ -128,6 +151,7 @@ const DashboardPage = () => {
               recentTickets.map(ticket => (
                 <div key={ticket.id} className="recent-item ticket">
                   <h3>{ticket.title}</h3>
+                  <p className="ticket-description">{ticket.description}</p>
                   <p>Date: {ticket.date}</p>
                   <p className="status">Status: <span className={`priority-${ticket.priority}`}>{ticket.status}</span></p>
                 </div>
@@ -179,15 +203,10 @@ const DashboardPage = () => {
             <span className="action-icon">🎫</span>
             <span className="action-text">Create Ticket</span>
           </Link>
-          <Link to="/members/new" className="action-button">
-            <span className="action-icon">👥</span>
-            <span className="action-text">Add User</span>
-          </Link>
           <Link to="/equipment/new" className="action-button">
             <span className="action-icon">🏋️</span>
             <span className="action-text">Add Equipment</span>
           </Link>
-          {/* Create Announcement button removed */}
         </div>
       </div>
     </div>

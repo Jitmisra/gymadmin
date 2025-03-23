@@ -12,7 +12,8 @@ const AddTicketPage = () => {
     title: '',
     description: '',
     issuerEmail: '',
-    status: 'open'
+    status: 'open',
+    ticketType: 'user' // Default to "user" type
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,18 +46,25 @@ const AddTicketPage = () => {
     setIsSubmitting(true);
     
     try {
+      // Simplified data structure - only pass what's needed for display
       const ticketData = {
-        ...formData,
+        title: formData.title,
+        description: formData.description,
+        issuerEmail: formData.issuerEmail,
+        status: formData.status,
         gymId: selectedGym.id,
-        date: new Date().toISOString().split('T')[0] // Today's date in YYYY-MM-DD format
+        gym: selectedGym.name,
+        // We don't need to pass userId here as it will be hardcoded in the API function
       };
+      
+      console.log('Submitting ticket data:', ticketData); // For debugging
       
       await createTicket(ticketData);
       
       navigate('/tickets');
     } catch (error) {
       console.error('Error creating ticket:', error);
-      setErrors({ submit: 'Failed to create ticket. Please try again.' });
+      setErrors({ submit: `Failed to create ticket: ${error.message}` });
     } finally {
       setIsSubmitting(false);
     }
@@ -114,6 +122,21 @@ const AddTicketPage = () => {
               placeholder="Email of the person reporting the issue"
             />
             {errors.issuerEmail && <div className="input-error">{errors.issuerEmail}</div>}
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="ticketType">Ticket Type</label>
+            <select
+              id="ticketType"
+              name="ticketType"
+              value={formData.ticketType}
+              onChange={handleInputChange}
+            >
+              <option value="user">User Issue</option>
+              <option value="equipment">Equipment Problem</option>
+              <option value="facility">Facility Maintenance</option>
+              <option value="other">Other</option>
+            </select>
           </div>
           
           <div className="form-group">

@@ -17,12 +17,13 @@ const LoginForm = () => {
       return;
     }
     
-    try {
-      await login(email, password);
-      // Successful login will automatically redirect via the AuthContext
-    } catch (err) {
-      setError('Invalid email or password. Please try again.');
+    setError('');
+    const result = await login(email, password);
+    
+    if (!result.success) {
+      setError(result.message || 'Invalid email or password. Please try again.');
     }
+    // Successful login will automatically redirect via the AuthContext
   };
 
   return (

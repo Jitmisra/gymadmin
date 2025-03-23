@@ -165,6 +165,37 @@
   text-decoration: underline;
 }
 
+.status-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.status-dropdown select {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.status-dropdown select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.status-badge.status-active {
+  background-color: #2ecc71;
+}
+
+.status-badge.status-maintenance {
+  background-color: #f39c12;
+}
+
+.status-badge.status-out-of-order {
+  background-color: #e74c3c;
+}
+
 @media (max-width: 768px) {
   .equipment-filters {
     flex-direction: column;

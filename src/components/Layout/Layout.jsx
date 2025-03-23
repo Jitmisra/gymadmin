@@ -84,14 +84,7 @@ const Layout = () => {
             <span className="nav-icon">🏢</span>
             <span className="nav-text">Gyms</span>
           </NavLink>
-          <NavLink 
-            to="/members" 
-            className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
-            onClick={closeSidebarOnMobile}
-          >
-            <span className="nav-icon">👥</span>
-            <span className="nav-text">Users</span>
-          </NavLink>
+          {/* Members/Users link removed */}
           <NavLink 
             to="/admins" 
             className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
@@ -124,7 +117,6 @@ const Layout = () => {
             <span className="nav-icon">💬</span>
             <span className="nav-text">Community</span>
           </NavLink>
-          {/* Settings link removed */}
         </nav>
         
         <div className="sidebar-footer">

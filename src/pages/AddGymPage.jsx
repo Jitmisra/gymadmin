@@ -104,7 +104,8 @@ const AddGymPage = () => {
         status: formData.isActive ? 'active' : 'inactive',
         equipment: formData.equipment,
         location: formData.address.split(',')[0].trim(), // Simplified location extraction
-        members: 0 // New gyms start with 0 members
+        members: 0, // New gyms start with 0 members
+        gymId: 4 // Use the next gymId after 2 (Main Campus) and 3 (North Campus)
       };
       
       // Call the API to create a new gym

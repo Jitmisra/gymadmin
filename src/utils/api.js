@@ -18,32 +18,33 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+const API_BASE_URL = 'http://localhost:7800/api/v1';
+
 // Authentication
 export const login = async (email, password) => {
   try {
-    // For demo purposes, we'll use a mock response
-    // In a real app, you would use: const response = await api.post('/auth/login', { email, password });
+    const response = await fetch(`${API_BASE_URL}/admin/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
     
-    // Mock successful login
-    if ((email === 'admin@gym.com' && password === 'admin123') || 
-        (email === 'agnik@gmail.com' && password === '12345678')) {
-      const mockResponse = {
-        data: {
-          token: 'mock-jwt-token',
-          user: {
-            id: 1,
-            name: email === 'agnik@gmail.com' ? 'Agnik' : 'Admin User',
-            email: email,
-            role: 'Admin' // Changed from admin to Admin for consistency
-          }
-        }
-      };
-      localStorage.setItem('token', mockResponse.data.token);
-      localStorage.setItem('user', JSON.stringify(mockResponse.data.user));
-      return mockResponse.data;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Login failed');
     }
     
-    throw new Error('Invalid credentials');
+    // Store token in localStorage
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.admin));
+    
+    return {
+      user: data.admin,
+      token: data.token
+    };
   } catch (error) {
     throw error;
   }
@@ -59,49 +60,51 @@ export const fetchDashboardStats = async () => {
   // In a real app: return api.get('/dashboard/stats');
   return {
     users: {
-      total: 1250,
-      members: 1235,
-      admins: 15
+      total: 2,
+      members: 1,
+      admins: 1
     },
     gyms: {
-      total: 15
+      total: 2
     },
     equipment: {
-      total: 320,
-      working: 298,
-      damaged: 22
+      total: 6,
+      working: 6,
+      damaged: 0
     },
     tickets: {
-      total: 45,
-      pending: 8,
-      solved: 37
+      total: 0,
+      pending: 0,
+      solved: 0
     }
   };
 };
 
 // Gym management
 export const fetchGyms = async () => {
-  // In a real app: return api.get('/gyms');
-  return [
-    { id: 1, name: 'Fitness Plus', location: 'New York', members: 350, status: 'active' },
-    { id: 2, name: 'Iron Works', location: 'Los Angeles', members: 275, status: 'active' },
-    { id: 3, name: 'Muscle Factory', location: 'Chicago', members: 180, status: 'active' },
-    { id: 4, name: 'Elite Fitness', location: 'Miami', members: 445, status: 'active' }
-  ];
+  try {
+    // Use the real API endpoint to fetch gyms
+    // For now, return mock data with the specified IDs
+    return [
+      { id: 1, name: 'Main Campus Gym', location: 'IIT Roorkee', members: 1, status: 'active', gymId: 2 },
+      { id: 2, name: 'North Campus Gym', location: 'IIT Roorkee', members: 1, status: 'active', gymId: 3 }
+    ];
+  } catch (error) {
+    console.error('Error fetching gyms:', error);
+    throw error;
+  }
 };
 
 export const createGym = async (gymData) => {
   try {
     // In a real app, this would be an API call to create a gym
     // const response = await api.post('/gyms', gymData);
-    
     // For demo purposes, we'll return a mock response with a generated ID
     const newGym = {
       id: Math.floor(Math.random() * 1000) + 10,
       ...gymData,
       members: 0
     };
-    
     return newGym;
   } catch (error) {
     throw error;
@@ -112,7 +115,6 @@ export const updateGym = async (gymId, gymData) => {
   try {
     // In a real app, this would be an API call to update a gym
     // const response = await api.put(`/gyms/${gymId}`, gymData);
-    
     // For demo purposes, we'll return the updated gym data
     return {
       id: gymId,
@@ -127,15 +129,12 @@ export const fetchGymById = async (gymId) => {
   try {
     // In a real app, this would be an API call to get a gym by ID
     // const response = await api.get(`/gyms/${gymId}`);
-    
-    // For demo purposes, let's find a gym from our mock data
     const allGyms = await fetchGyms();
+    // For demo purposes, let's find a gym from our mock data
     const gym = allGyms.find(g => g.id.toString() === gymId.toString());
-    
     if (!gym) {
       throw new Error('Gym not found');
     }
-    
     return gym;
   } catch (error) {
     throw error;
@@ -146,7 +145,6 @@ export const deleteGym = async (gymId) => {
   try {
     // In a real app, this would be an API call to delete a gym
     // await api.delete(`/gyms/${gymId}`);
-    
     // For demo purposes, we'll just return a success response
     return { success: true };
   } catch (error) {
@@ -158,55 +156,133 @@ export const deleteGym = async (gymId) => {
 export const fetchEquipment = async () => {
   // In a real app: return api.get('/equipment');
   return [
-    { id: 1, name: 'Treadmill', gym: 'Fitness Plus', status: 'operational', lastMaintenance: '2023-05-10' },
-    { id: 2, name: 'Bench Press', gym: 'Iron Works', status: 'needs maintenance', lastMaintenance: '2023-02-15' },
-    { id: 3, name: 'Dumbbells Set', gym: 'Muscle Factory', status: 'operational', lastMaintenance: '2023-06-01' },
-    { id: 4, name: 'Elliptical Machine', gym: 'Elite Fitness', status: 'operational', lastMaintenance: '2023-04-20' }
+    { id: 1, name: 'Treadmill', gym: 'Main Campus Gym', gymId: 2, status: 'operational', lastMaintenance: '2023-05-10' },
+    { id: 2, name: 'Bench Press', gym: 'Main Campus Gym', gymId: 2, status: 'operational', lastMaintenance: '2023-02-15' },
+    { id: 3, name: 'Squat Rack', gym: 'Main Campus Gym', gymId: 2, status: 'operational', lastMaintenance: '2023-06-01' },
+    { id: 4, name: 'Dumbbells Set', gym: 'North Campus Gym', gymId: 3, status: 'operational', lastMaintenance: '2023-04-20' },
+    { id: 5, name: 'Exercise Bike', gym: 'North Campus Gym', gymId: 3, status: 'operational', lastMaintenance: '2023-03-15' },
+    { id: 6, name: 'Smith Machine', gym: 'North Campus Gym', gymId: 3, status: 'operational', lastMaintenance: '2023-01-25' }
   ];
 };
 
 export const fetchEquipmentByGym = async (gymId) => {
   try {
-    // In a real app, this would be an API call
-    // const response = await api.get(`/gyms/${gymId}/equipment`);
+    console.log(`Fetching equipment for gym ID: ${gymId}`);
     
-    // For demo purposes, get all equipment and filter
-    const allEquipment = await fetchEquipment();
-    const gym = await fetchGymById(gymId);
+    // Use the real API endpoint
+    const url = `${API_BASE_URL}/admin/machines/all?gymId=${gymId}`;
+    console.log('API URL:', url);
     
-    if (!gym) {
-      throw new Error('Gym not found');
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Error fetching equipment:', errorText);
+      throw new Error(`Failed to fetch equipment: ${response.status} ${response.statusText}`);
     }
     
-    // Filter equipment by gym name and add mock photos
-    const equipmentWithPhotos = allEquipment
-      .filter(item => item.gym === gym.name)
-      .map(item => ({
-        ...item,
-        photoUrl: `https://source.unsplash.com/random/150x150?${item.name.toLowerCase().replace(/\s+/g, '-')}`
-      }));
+    const data = await response.json();
+    console.log('Equipment fetched successfully:', data);
     
-    return equipmentWithPhotos;
+    if (!data.success) {
+      throw new Error(data.message || 'Failed to fetch equipment');
+    }
+    
+    // Transform the API response to match the expected format
+    return Array.isArray(data.data) ? data.data.map(machine => ({
+      id: machine.id,
+      name: machine.name,
+      description: machine.description,
+      status: machine.status,
+      gymId: machine.gymId,
+      gym: machine.gymName || 'Unknown Gym', // Use gymName if available
+      lastMaintenance: machine.updatedAt ? new Date(machine.updatedAt).toISOString().split('T')[0] : null,
+      photoUrl: machine.imageUrl,
+      No_Of_Uses: machine.No_Of_Uses,
+      needService: machine.needService
+    })) : [];
+    
   } catch (error) {
-    throw error;
+    console.error('Error in fetchEquipmentByGym:', error);
+    
+    // Fallback to the mock data filtering method in case of an API error
+    try {
+      console.log('Falling back to mock data for equipment');
+      const allEquipment = await fetchEquipment();
+      
+      // Filter equipment by gymId
+      const equipmentWithPhotos = allEquipment
+        .filter(item => item.gymId === parseInt(gymId))
+        .map(item => ({
+          ...item,
+          photoUrl: `https://source.unsplash.com/random/150x150?${item.name.toLowerCase().replace(/\s+/g, '-')}`
+        }));
+      
+      return equipmentWithPhotos;
+    } catch (fallbackError) {
+      console.error('Fallback method also failed:', fallbackError);
+      throw error; // Throw the original error
+    }
   }
 };
 
 export const createEquipment = async (equipmentData, photo) => {
   try {
-    // In a real app, this would be an API call with file upload
-    // const formData = new FormData();
-    // Object.keys(equipmentData).forEach(key => formData.append(key, equipmentData[key]));
-    // if (photo) formData.append('photo', photo);
-    // const response = await api.post('/equipment', formData);
+    // Format data for the API
+    const payload = {
+      name: equipmentData.name,
+      description: equipmentData.description || 'No description provided',
+      imageUrl: photo ? URL.createObjectURL(photo) : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48', // Default image if none provided
+      No_Of_Uses: 0, // New equipment starts with 0 uses
+      gymId: equipmentData.gymId,
+      status: equipmentData.status || 'active'
+    };
     
-    // For demo purposes, return a mock response
+    console.log('Creating equipment with payload:', payload);
+    
+    // Call the real API endpoint
+    const response = await fetch(`${API_BASE_URL}/admin/machines/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('Equipment creation response:', data);
+    
+    if (!data.success) {
+      throw new Error(data.message || 'Failed to create equipment');
+    }
+    
+    // Return the created equipment data
     return {
-      id: Math.floor(Math.random() * 1000) + 1,
-      ...equipmentData,
-      photoUrl: photo ? URL.createObjectURL(photo) : null
+      id: data.data.id,
+      name: data.data.name,
+      description: data.data.description,
+      status: data.data.status,
+      lastMaintenance: new Date().toISOString().split('T')[0],
+      photoUrl: data.data.imageUrl,
+      gymId: data.data.gymId,
+      gym: equipmentData.gym, // Keep the gym name if available
+      No_Of_Uses: data.data.No_Of_Uses,
+      needService: data.data.needService
     };
   } catch (error) {
+    console.error('Error creating equipment:', error);
     throw error;
   }
 };
@@ -236,59 +312,130 @@ export const deleteEquipment = async (equipmentId) => {
   }
 };
 
+export const updateEquipmentStatus = async (equipmentId, newStatus) => {
+  try {
+    console.log(`Updating equipment ${equipmentId} status to ${newStatus}`);
+    
+    // Use PUT instead of PATCH to avoid CORS issues
+    const response = await fetch(`${API_BASE_URL}/admin/machines/status/${equipmentId}`, {
+      method: 'PUT', // Changed from PATCH to PUT
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ status: newStatus })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('Status update response:', data);
+    
+    if (!data.success) {
+      throw new Error(data.message || 'Failed to update equipment status');
+    }
+    
+    return {
+      success: true,
+      data: data.data
+    };
+  } catch (error) {
+    console.error('Error updating equipment status:', error);
+    throw error;
+  }
+};
+
 // Ticket management
 export const fetchTickets = async () => {
-  // In a real app: return api.get('/tickets');
-  return [
-    { 
-      id: 1, 
-      title: 'Broken treadmill',
-      description: 'Treadmill #3 is making a loud noise and stops unexpectedly',
-      issuerEmail: 'john.doe@example.com',
-      gym: 'Fitness Plus', 
-      status: 'open', 
-      date: '2023-07-15', 
-      priority: 'high' 
-    },
-    { 
-      id: 2, 
-      title: 'AC not working',
-      description: 'The air conditioning in the cardio section is not cooling properly',
-      issuerEmail: 'manager@ironworks.com',
-      gym: 'Iron Works', 
-      status: 'in progress', 
-      date: '2023-07-12', 
-      priority: 'medium' 
-    },
-    { 
-      id: 3, 
-      title: 'Water dispenser leaking',
-      description: 'The water dispenser near the free weights area is leaking and creating a puddle',
-      issuerEmail: 'staff@elitefitness.com', 
-      gym: 'Elite Fitness', 
-      status: 'open', 
-      date: '2023-07-10', 
-      priority: 'low' 
-    },
-    { 
-      id: 4, 
-      title: 'Locker room needs cleaning',
-      description: 'The men\'s locker room needs urgent cleaning and attention',
-      issuerEmail: 'member@fitness.com',
-      gym: 'Fitness Plus', 
-      status: 'closed', 
-      date: '2023-07-05', 
-      priority: 'medium' 
+  try {
+    // Use the real API endpoint to fetch tickets
+    const response = await fetch(`${API_BASE_URL}/admin/tickets/user/534839`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Error fetching tickets:', errorText);
+      throw new Error(`Failed to fetch tickets: ${response.status} ${response.statusText}`);
     }
-  ];
+    
+    const data = await response.json();
+    console.log('Tickets fetched successfully:', data);
+    
+    if (!data.success || !Array.isArray(data.tickets)) {
+      throw new Error('Invalid response format from server');
+    }
+    
+    // Transform the API response to match the expected format
+    return data.tickets.map(ticket => ({
+      id: ticket.id,
+      title: ticket.title,
+      description: ticket.description,
+      issuerEmail: ticket.userId, // Using userId as issuerEmail for now
+      gym: "Unknown", // API doesn't provide gym info
+      status: ticket.status,
+      date: new Date(ticket.createdAt).toISOString().split('T')[0],
+      priority: ticket.ticketType === 'user' ? 'medium' : 'high' // Assign priority based on ticket type
+    }));
+  } catch (error) {
+    console.error('Error in fetchTickets:', error);
+    // Return mock data as fallback in case of error
+    return [
+      { 
+        id: 1, 
+        title: 'Broken treadmill',
+        description: 'Treadmill #3 is making a loud noise and stops unexpectedly',
+        issuerEmail: 'john.doe@example.com',
+        gym: 'Fitness Plus', 
+        status: 'open', 
+        date: '2023-07-15', 
+        priority: 'high' 
+      },
+      { 
+        id: 2, 
+        title: 'AC not working',
+        description: 'The air conditioning in the cardio section is not cooling properly',
+        issuerEmail: 'manager@ironworks.com',
+        gym: 'Iron Works', 
+        status: 'in progress', 
+        date: '2023-07-12', 
+        priority: 'medium' 
+      },
+      { 
+        id: 3, 
+        title: 'Water dispenser leaking',
+        description: 'The water dispenser near the free weights area is leaking and creating a puddle',
+        issuerEmail: 'staff@elitefitness.com', 
+        gym: 'Elite Fitness', 
+        status: 'open', 
+        date: '2023-07-10', 
+        priority: 'low' 
+      },
+      { 
+        id: 4, 
+        title: 'Locker room needs cleaning',
+        description: 'The men\'s locker room needs urgent cleaning and attention',
+        issuerEmail: 'member@fitness.com',
+        gym: 'Fitness Plus', 
+        status: 'closed', 
+        date: '2023-07-05', 
+        priority: 'medium' 
+      }
+    ];
+  }
 };
 
 export const fetchTicketsByGym = async (gymId) => {
   try {
-    // In a real app, this would be an API call
-    // const response = await api.get(`/gyms/${gymId}/tickets`);
-    
-    // For demo purposes, get all tickets and filter
+    // At the moment, API doesn't support filtering by gym
+    // So we'll fetch all tickets and filter client-side
     const allTickets = await fetchTickets();
     const gym = await fetchGymById(gymId);
     
@@ -296,8 +443,9 @@ export const fetchTicketsByGym = async (gymId) => {
       throw new Error('Gym not found');
     }
     
-    // Filter tickets by gym name
-    return allTickets.filter(ticket => ticket.gym === gym.name);
+    // Since we don't have gym info in API, we'll return all tickets
+    // In a real implementation, you'd filter by gym when the API supports it
+    return allTickets;
   } catch (error) {
     throw error;
   }
@@ -305,40 +453,76 @@ export const fetchTicketsByGym = async (gymId) => {
 
 export const createTicket = async (ticketData) => {
   try {
-    // In a real app, this would be an API call to create a ticket
-    // const response = await api.post('/tickets', ticketData);
-    
-    // For demo purposes, we'll return a mock response with a generated ID
-    const gym = await fetchGymById(ticketData.gymId);
-    
-    if (!gym) {
-      throw new Error('Gym not found');
-    }
-    
-    const newTicket = {
-      id: Math.floor(Math.random() * 1000) + 10, // Generate random ID
-      ...ticketData,
-      gym: gym.name,
-      priority: 'medium', // Default priority
+    // Only include the exact fields needed by API
+    const payload = {
+      userId: "534839", // Use the hardcoded ID that works
+      title: ticketData.title,
+      description: ticketData.description,
+      ticketType: "user"
     };
     
-    console.log('New ticket created:', newTicket);
+    console.log('Sending ticket payload:', payload); // For debugging
     
-    return newTicket;
+    // Make API call to the real endpoint
+    const response = await fetch(`${API_BASE_URL}/admin/tickets/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    if (!response.ok) {
+      // Log the error response for debugging
+      const errorText = await response.text();
+      console.error('Error response:', errorText);
+      throw new Error(`Failed to create ticket: ${response.status} ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    console.log('Ticket creation successful:', data);
+    
+    // Return the ticket data from the response
+    return {
+      id: data.ticket.id,
+      title: data.ticket.title,
+      description: data.ticket.description,
+      status: data.ticket.status || 'open',
+      date: new Date(data.ticket.createdAt).toISOString().split('T')[0],
+      gym: ticketData.gym || "Unknown", // Keep gym info if provided
+      issuerEmail: ticketData.issuerEmail,
+      priority: ticketData.priority || 'medium'
+    };
   } catch (error) {
+    console.error('Error creating ticket:', error);
     throw error;
   }
 };
 
 export const deleteTicket = async (ticketId) => {
   try {
-    // In a real app, this would be an API call to delete a ticket
-    // await api.delete(`/tickets/${ticketId}`);
+    // Use the real API endpoint to delete a ticket
+    const response = await fetch(`${API_BASE_URL}/admin/tickets/${ticketId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
     
-    // For demo purposes, we'll just return a success response
-    console.log(`Deleting ticket with ID: ${ticketId}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Error deleting ticket ${ticketId}:`, errorText);
+      throw new Error(`Failed to delete ticket: ${response.status} ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    console.log(`Successfully deleted ticket ${ticketId}:`, data);
+    
     return { success: true };
   } catch (error) {
+    console.error(`Error deleting ticket ${ticketId}:`, error);
     throw error;
   }
 };
@@ -361,29 +545,24 @@ export const fetchMembersByGym = async (gymId) => {
     // In a real app, this would be an API call
     // const response = await api.get(`/gyms/${gymId}/members`);
     
-    // For demo purposes, generate mock members
+    // For demo purposes, return a default member
     const gym = await fetchGymById(gymId);
     
     if (!gym) {
       throw new Error('Gym not found');
     }
     
-    // Generate a consistent set of members based on gym ID
-    const memberCount = gym.members;
-    const members = [];
-    
-    for (let i = 1; i <= Math.min(memberCount, 50); i++) {
-      members.push({
-        id: `${gymId}-${i}`,
-        name: `Member ${i}`,
-        email: `member${i}@example.com`,
-        joinDate: new Date(Date.now() - Math.random() * 10000000000).toISOString().slice(0, 10),
-        status: Math.random() > 0.1 ? 'active' : 'inactive',
-        gymId: gymId
-      });
-    }
-    
-    return members;
+    // Return Agnik as a default member for each gym
+    return [
+      {
+        id: `${gymId}-1`,
+        name: 'Agnik',
+        email: 'agnikm@gmail.com',
+        joinDate: '2023-01-15',
+        status: 'active',
+        gymId: parseInt(gymId)
+      }
+    ];
   } catch (error) {
     throw error;
   }
@@ -438,87 +617,199 @@ export const resetMemberPassword = async (memberId) => {
 // Admin management
 export const fetchAdmins = async () => {
   try {
-    // In a real app, this would fetch administrators from an API
-    // const response = await api.get('/admins');
-    
-    // For demo purposes, return mock data
-    return [
-      {
-        id: 1,
-        name: 'Admin User',
-        email: 'admin@gym.com',
-        role: 'Admin', // Changed from SuperAdmin to Admin
-        lastLogin: '2023-07-15'
-      },
-      {
-        id: 2,
-        name: 'Agnik',
-        email: 'agnik@gmail.com',
-        role: 'Admin',
-        lastLogin: '2023-07-14'
-      },
-      {
-        id: 3,
-        name: 'Jane Smith',
-        email: 'jane@gym.com',
-        role: 'Admin',
-        lastLogin: '2023-07-10'
-      },
-      {
-        id: 4,
-        name: 'Michael Johnson',
-        email: 'michael@gym.com',
-        role: 'Admin',
-        lastLogin: '2023-07-08'
-      }
+    // Try both potential endpoints with the correct one first
+    const urls = [
+      `${API_BASE_URL}/admin/admin/all`,  // Updated to the correct endpoint
+      `${API_BASE_URL}/admin/auth/admin`
     ];
+    
+    let response;
+    let data;
+    let error;
+    
+    // Try the first URL
+    try {
+      response = await fetch(urls[0], {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      // Check if response is JSON by examining Content-Type header
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Received non-JSON response from server');
+      }
+      
+      data = await response.json();
+    } catch (err) {
+      // If first URL fails, try the second one
+      console.log('First admin endpoint failed, trying alternative...');
+      error = err;
+      
+      try {
+        response = await fetch(urls[1], {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          throw new Error('Received non-JSON response from server');
+        }
+        
+        data = await response.json();
+        error = null; // Clear error if second attempt succeeds
+      } catch (secondErr) {
+        console.error('Both admin endpoints failed:', secondErr);
+        // If both fail, fall back to mock data
+        console.log('Falling back to mock admin data');
+        return getMockAdmins();
+      }
+    }
+    
+    if (error) throw error;
+    if (!response.ok) {
+      throw new Error(data.message || `Error: ${response.status}`);
+    }
+    
+    console.log('Admin data response:', data);
+    
+    // Check if data has expected structure
+    const adminList = data.admin || data.admins || data || [];
+    
+    // Format the response to match what the frontend expects
+    return Array.isArray(adminList) ? adminList.map(admin => ({
+      id: admin.id,
+      name: admin.name,
+      email: admin.email,
+      role: 'Admin',
+      lastLogin: admin.updatedAt ? new Date(admin.updatedAt).toISOString().split('T')[0] : null
+    })) : [];
   } catch (error) {
-    throw error;
+    console.error('Error fetching administrators:', error);
+    // Fall back to mock data in case of any error
+    return getMockAdmins();
   }
 };
 
+// Helper function to provide mock admin data as fallback
+function getMockAdmins() {
+  return [
+    {
+      id: 1,
+      name: 'Admin User',
+      email: 'admin@gym.com',
+      role: 'Admin',
+      lastLogin: new Date().toISOString().split('T')[0]
+    },
+    {
+      id: 2,
+      name: 'Agnik',
+      email: 'agnik@gmail.com',
+      role: 'Admin',
+      lastLogin: new Date().toISOString().split('T')[0]
+    },
+    {
+      id: 3,
+      name: 'Jane Smith',
+      email: 'jane@gym.com',
+      role: 'Admin',
+      lastLogin: new Date().toISOString().split('T')[0]
+    }
+  ];
+}
+
 export const createAdmin = async (adminData) => {
   try {
-    // In a real app, this would be an API call to create an admin
-    // const response = await api.post('/admins', adminData);
+    const response = await fetch(`${API_BASE_URL}/admin/admin/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({
+        name: adminData.name,
+        email: adminData.email,
+        password: adminData.password
+      }),
+    });
     
-    // For demo purposes, we'll return a mock response with a generated ID
-    const newAdmin = {
-      id: Math.floor(Math.random() * 1000) + 10,
-      ...adminData,
-      role: 'Admin', // Ensure all created admins have the Admin role
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to create admin');
+    }
+    
+    // Return the new admin from the response
+    return {
+      id: data.newadmin.id,
+      name: data.newadmin.name,
+      email: data.newadmin.email,
+      role: 'Admin',
       lastLogin: null
     };
-    
-    return newAdmin;
   } catch (error) {
+    console.error('Error creating admin:', error);
     throw error;
   }
 };
 
 export const deleteAdmin = async (adminId) => {
   try {
-    // In a real app, this would be an API call to delete an admin
-    // await api.delete(`/admins/${adminId}`);
+    const response = await fetch(`${API_BASE_URL}/admin/admin/delete/${adminId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
     
-    // For demo purposes, we'll just return a success response
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to delete administrator');
+    }
+    
     return { success: true };
   } catch (error) {
+    console.error('Error deleting administrator:', error);
     throw error;
   }
 };
 
 export const resetAdminPassword = async (adminId) => {
   try {
-    // In a real app, this would be an API call to reset an admin's password
-    // const response = await api.post(`/admins/${adminId}/reset-password`);
+    const response = await fetch(`${API_BASE_URL}/admin/admin/update/${adminId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      // No need to send a new password - assuming the API generates one
+      body: JSON.stringify({
+        resetPassword: true
+      }),
+    });
     
-    // For demo purposes, we'll return a mock response
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to reset administrator password');
+    }
+    
     return {
       success: true,
-      message: 'Password has been reset successfully and sent to the admin\'s email.'
+      message: data.message || 'Password has been reset successfully.'
     };
   } catch (error) {
+    console.error('Error resetting administrator password:', error);
     throw error;
   }
 };
@@ -536,25 +827,22 @@ export const fetchGymDashboardStats = async (gymId) => {
       throw new Error('Gym not found');
     }
     
-    // Random but consistent values based on gym ID
-    const memberCount = gym.members;
-    const adminCount = Math.max(1, Math.floor(memberCount / 100));
-    
+    // Return stats based on our predefined data
     return {
       users: {
-        total: memberCount + adminCount,
-        members: memberCount,
-        admins: adminCount
+        total: 2,  // 1 member + 1 admin
+        members: 1,
+        admins: 1
       },
       equipment: {
-        total: Math.floor(memberCount / 4),
-        working: Math.floor((memberCount / 4) * 0.9),
-        damaged: Math.floor((memberCount / 4) * 0.1)
+        total: 3,  // 3 equipment per gym
+        working: 3,
+        damaged: 0
       },
       tickets: {
-        total: Math.floor(memberCount / 30),
-        pending: Math.floor((memberCount / 30) * 0.2),
-        solved: Math.floor((memberCount / 30) * 0.8)
+        total: 0,
+        pending: 0,
+        solved: 0
       }
     };
   } catch (error) {
@@ -613,7 +901,6 @@ export const deleteCommunityPost = async (postId) => {
   try {
     // In a real app, this would be an API call to delete a post
     // await api.delete(`/community/posts/${postId}`);
-    
     console.log(`Deleting community post with ID: ${postId}`);
     return { success: true };
   } catch (error) {

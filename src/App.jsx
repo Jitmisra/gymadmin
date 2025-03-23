@@ -14,9 +14,7 @@ import EditGymPage from './pages/EditGymPage';
 import TicketsPage from './pages/TicketsPage';
 import EquipmentPage from './pages/EquipmentPage';
 import CommunityPage from './pages/CommunityPage';
-import MembersPage from './pages/MembersPage';
 import AdminsPage from './pages/AdminsPage';
-import AddMemberPage from './pages/AddMemberPage';
 import AddAdminPage from './pages/AddAdminPage';
 import AddEquipmentPage from './pages/AddEquipmentPage';
 import EditEquipmentPage from './pages/EditEquipmentPage';
@@ -44,8 +42,9 @@ const App = () => {
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/gyms" element={<GymsPage />} />
                   <Route path="/gyms/:id/edit" element={<EditGymPage />} />
-                  <Route path="/members" element={<MembersPage />} />
-                  <Route path="/members/new" element={<AddMemberPage />} />
+                  {/* Members routes removed */}
+                  {/* <Route path="/members" element={<MembersPage />} /> */}
+                  {/* <Route path="/members/new" element={<AddMemberPage />} /> */}
                   <Route path="/admins" element={<AdminsPage />} />
                   <Route path="/admins/new" element={<AddAdminPage />} />
                   <Route path="/tickets" element={<TicketsPage />} />

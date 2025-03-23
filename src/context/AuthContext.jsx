@@ -35,6 +35,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, password) => {
+    setLoading(true);
     try {
       const data = await apiLogin(email, password);
       setUser(data.user);
@@ -46,6 +47,8 @@ export function AuthProvider({ children }) {
         success: false, 
         message: error.message || 'Failed to login. Please check your credentials.' 
       };
+    } finally {
+      setLoading(false);
     }
   };
 

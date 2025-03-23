@@ -42,7 +42,7 @@ const TicketList = ({ limit }) => {
       {tickets.map(ticket => (
         <div key={ticket.id} className="ticket-item">
           <div className="ticket-title">{ticket.title}</div>
-          <div className="ticket-gym">{ticket.gym}</div>
+          <div className="ticket-gym">{ticket.gym || "Not assigned"}</div>
           <div className="ticket-date">{ticket.date}</div>
           <div className="ticket-status">
             <span className={`status-badge status-${ticket.status.replace(/\s+/g, '-')}`}>
