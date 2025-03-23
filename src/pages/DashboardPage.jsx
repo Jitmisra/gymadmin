@@ -181,7 +181,7 @@ const DashboardPage = () => {
           </Link>
           <Link to="/members/new" className="action-button">
             <span className="action-icon">👥</span>
-            <span className="action-text">Add Member</span>
+            <span className="action-text">Add User</span>
           </Link>
           <Link to="/equipment/new" className="action-button">
             <span className="action-icon">🏋️</span>

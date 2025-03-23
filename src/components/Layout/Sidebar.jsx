@@ -38,7 +38,7 @@ const Sidebar = ({ isCollapsed, onToggle, onLinkClick }) => {
           onClick={onLinkClick}
         >
           <span className="nav-icon">👥</span>
-          <span className="nav-text">Members</span>
+          <span className="nav-text">Users</span>
         </NavLink>
         <NavLink 
           to="/equipment" 

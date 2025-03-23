@@ -86,11 +86,11 @@ const Layout = () => {
           </NavLink>
           <NavLink 
             to="/members" 
-            className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+            className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
             onClick={closeSidebarOnMobile}
           >
             <span className="nav-icon">👥</span>
-            <span className="nav-text">Members</span>
+            <span className="nav-text">Users</span>
           </NavLink>
           <NavLink 
             to="/admins" 
